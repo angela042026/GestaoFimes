@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="GestaoFilmes.AppConsola/GestaoFilmes.AppConsola.csproj" />
+  <Project Path="GestaoFilmes.Business/GestaoFilmes.Business.csproj" />
+  <Project Path="GestaoFilmes.Data/GestaoFilmes.Data.csproj" />
+  <Project Path="GestaoFilmes.Domain/GestaoFilmes.Domain.csproj" />
+</Solution>
