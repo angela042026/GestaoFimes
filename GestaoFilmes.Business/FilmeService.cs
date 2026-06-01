@@ -5,7 +5,7 @@ using System;
 
 namespace GestaoFilmes.Business
 {
-    public class FilmeService
+    public class FilmeService: IFilmeService
     {
         private readonly IFilmeRepository _repositorio;
 
@@ -14,15 +14,15 @@ namespace GestaoFilmes.Business
         {
             _repositorio = repositorio;
         }
-
-        public void RegistarFilme(Filme filme)
+       
+            public void RegistarFilme(Filme filme)
         {
             // 1. REGRA: Título obrigatório
             if (string.IsNullOrWhiteSpace(filme.Titulo))
                 throw new Exception("O título do filme não pode estar vazio!");
 
             // 2. REGRA: Verificar se o título já existe
-            var filmeExistente = _repositorio.ObterPorTitulo(filme.Titulo);
+            var filmeExistente = _repositorio.ProcurarPorTitulo(filme.Titulo);
 
             if (filmeExistente != null)
             {
@@ -47,8 +47,7 @@ namespace GestaoFilmes.Business
             // 2. REGRA DE NEGÓCIO: Não permite buscas com textos vazios
             if (string.IsNullOrWhiteSpace(titulo))
                 throw new ArgumentException("O título de pesquisa não pode estar vazio!");
-
-            return _repositorio.ObterPorTitulo(titulo);
+            return _repositorio.ProcurarPorTitulo(titulo);
         }
 
         public bool EliminarFilme(int id)

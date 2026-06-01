@@ -1,4 +1,5 @@
 ﻿using GestaoFilmes.Domain.Entities;
+using GestaoFilmes.Domain.Interface;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Intrinsics.X86;
@@ -8,6 +9,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace GestaoFilmes.Domain.Interface
 {
+    //O Service responde à pergunta: "Que regras de negócio devo aplicar antes de mexer nos dados?"
     public interface IFilmeService
     {
         public void RegistarFilme(Filme filme);
@@ -23,3 +25,5 @@ namespace GestaoFilmes.Domain.Interface
 }
 
 // a interface define o que o sistema é obrigado a fazer, mas não explica como é feito
+
+//UI->IFilmeService-> (valida) IFilmeRepository -> (guarda) List<Filme>

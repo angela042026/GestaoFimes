@@ -10,17 +10,16 @@
         public int Ano { get; set; }       
         public string Lingua { get; set; } 
         
-        public Classificacao ClassificacaoFilme { get; set; }
+        public Classificacao Classificacao { get; set; }
 
         public Filme()
         {
             Titulo = string.Empty;
             Lingua = string.Empty;
             // definir uma classificação padrão ao criar o filme
-            ClassificacaoFilme = Classificacao.Medio;
+            Classificacao = Classificacao;
         }
        
     }
 }
-
 

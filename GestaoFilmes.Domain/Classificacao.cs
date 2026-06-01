@@ -6,11 +6,11 @@ namespace GestaoFilmes.Domain
 {
     public enum Classificacao
     {
-        Pessimo = 0,
-        Mau = 1,
-        Medio = 2,
-        Bom = 3,
-        MuitoBom = 4,
-        Excelente = 5
+        Zero = 0,
+        Um = 1,
+        Dois = 2,
+        Três = 3,
+        Quatro = 4,
+        Cinco = 5
     }
 }

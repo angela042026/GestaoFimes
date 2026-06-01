@@ -1,7 +1,7 @@
 ﻿using GestaoFilmes.Domain.Entities;
 using System.Collections.Generic;
 
-namespace GestaoFilmes.Domain.Interfaces
+namespace GestaoFilmes.Domain.Interface
 {
     public interface ICategoriaRepository
     {

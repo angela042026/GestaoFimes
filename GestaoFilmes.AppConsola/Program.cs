@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using GestaoFilmes.Domain.Entities;
-using GestaoFilmes.Domain.Interfaces;
+using GestaoFilmes.Domain.Interface;
 using GestaoFilmes.Business;
 using GestaoFilmes.Data;
 using GestaoFilmes.Domain;
@@ -15,7 +15,7 @@ namespace GestaoFilmes.ConsoleUI
     class Program
     {
         // CORREÇÃO TÉCNICA: Especificamos o caminho exato de cada classe para evitar conflitos no compilador
-        private static readonly GestaoFilmes.Domain.Interfaces.IFilmeRepository _filmeRepository = new GestaoFilmes.Data.FilmeRepository();
+        private static readonly GestaoFilmes.Domain.Interface.IFilmeRepository _filmeRepository = new GestaoFilmes.Data.FilmeRepository();
         private static readonly GestaoFilmes.Business.FilmeService _filmeService = new GestaoFilmes.Business.FilmeService(_filmeRepository);
 
 
@@ -26,10 +26,10 @@ namespace GestaoFilmes.ConsoleUI
             while (continuar)
             {
                 Console.Clear();
-                Console.WriteLine("=== GESTÃO DE FILMES - MENU PRINCIPAL ===");
+                Console.WriteLine("=== GESTÃO DE FILMES ===");
                 Console.WriteLine("1. Adicionar Filme");
-                Console.WriteLine("2. Listar Todos os Filmes");
-                Console.WriteLine("3. Procurar Filme por Título");
+                Console.WriteLine("2. Listar Filmes");
+                Console.WriteLine("3. Procurar Filme");
                 Console.WriteLine("4. Remover Filme");
                 Console.WriteLine("0. Sair");
                 Console.Write("\nEscolha uma opção: ");
@@ -75,17 +75,17 @@ namespace GestaoFilmes.ConsoleUI
             Console.Write("Escolha (0-5): ");
             if (int.TryParse(Console.ReadLine(), out int nota) && nota >= 0 && nota <= 5)
             {
-                novoFilme.ClassificacaoFilme = (Classificacao)nota;
+                novoFilme.Classificacao = (Classificacao)nota;
             }
 
             try
             {
                 _filmeService.RegistarFilme(novoFilme);
-                Console.WriteLine("\n🟢 Filme adicionado com sucesso com o ID: " + novoFilme.Id);
+                Console.WriteLine("\nFilme adicionado com sucesso com o ID: " + novoFilme.Id);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"\n🔴 Erro: {ex.Message}");
+                Console.WriteLine($"\n Erro: {ex.Message}");
             }
 
             Console.WriteLine("\nPressione qualquer tecla para voltar...");
@@ -107,7 +107,7 @@ namespace GestaoFilmes.ConsoleUI
             {
                 foreach (var f in lista)
                 {
-                    Console.WriteLine($"[ID: {f.Id}] {f.Titulo} ({f.Ano}) - Língua: {f.Lingua} | Nota: {f.ClassificacaoFilme}");
+                    Console.WriteLine($"[ID: {f.Id}] {f.Titulo} ({f.Ano}) - Língua: {f.Lingua} | Nota: {(int)f.Classificacao} *");
                 }
             }
 
@@ -134,16 +134,16 @@ namespace GestaoFilmes.ConsoleUI
                     Console.WriteLine($"-> Título: {filme.Titulo}");
                     Console.WriteLine($"-> Ano: {filme.Ano}");
                     Console.WriteLine($"-> Língua: {filme.Lingua}");
-                    Console.WriteLine($"-> Nota: {filme.ClassificacaoFilme}");
+                    Console.WriteLine($"-> Nota: {(int)filme.Classificacao} *");
                 }
                 else
                 {
-                    Console.WriteLine("\n🟡 Nenhum filme encontrado com esse título.");
+                    Console.WriteLine("\nNenhum filme encontrado com esse título.");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"\n🔴 Erro: {ex.Message}");
+                Console.WriteLine($"\n Erro: {ex.Message}");
             }
 
             Console.WriteLine("\nPressione qualquer tecla para voltar...");
@@ -162,18 +162,18 @@ namespace GestaoFilmes.ConsoleUI
                 {
                     bool apagou = _filmeService.EliminarFilme(id);
                     if (apagou)
-                        Console.WriteLine("\n🟢 Filme removido com sucesso!");
+                        Console.WriteLine("\nFilme removido com sucesso!");
                     else
-                        Console.WriteLine("\n🟡 Não foi encontrado nenhum filme com esse ID.");
+                        Console.WriteLine("\nNão foi encontrado nenhum filme com esse ID.");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"\n🔴 Erro: {ex.Message}");
+                    Console.WriteLine($"\nErro: {ex.Message}");
                 }
             }
             else
             {
-                Console.WriteLine("\n🔴 ID inválido! Deve digitar um número.");
+                Console.WriteLine("\nID inválido! Deve digitar um número.");
             }
 
             Console.WriteLine("\nPressione qualquer tecla para voltar...");
