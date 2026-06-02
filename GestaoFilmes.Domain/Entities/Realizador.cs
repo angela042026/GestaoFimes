@@ -1,18 +1,19 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace GestaoFilmes.Domain.Entities
 {
-    public class Categoria
+    internal class Realizador
     {
         public int Id { get; set; }
         public string Nome { get; set; }
+        public string Pais { get; set; }
 
-        // Construtor para garantir a segurança contra valores nulos
-        public Categoria()
+        public Realizador()
         {
             Nome = string.Empty;
+            Pais = string.Empty;
         }
     }
 }
-
-

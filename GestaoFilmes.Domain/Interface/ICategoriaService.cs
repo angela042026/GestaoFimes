@@ -1,13 +1,15 @@
-﻿using System.Collections.Generic;
+﻿
+
+using System.Collections.Generic;
 using GestaoFilmes.Domain.Entities;
 
-namespace GestaoFilmes.Domain.Interface
+namespace GestaoFilmes.Domain.Interfaces
 {
     public interface ICategoriaService
     {
-       public void RegistarCategoria(Categoria categoria);
+        public void RegistrarCategoria(Categoria categoria);
         public List<Categoria> ListarCategorias();
-        public Categoria BuscarCategoriaPorId(int id);
-        public bool EliminarCategoria(int id);
+        public Categoria ProcurarCategoriaPorNome(string nome);
+        public bool EliminarCategoria(string nome);
     }
 }

@@ -3,7 +3,7 @@ using GestaoFilmes.Domain.Interface;
 
 using System;
 
-namespace GestaoFilmes.Business
+namespace GestaoFilmes.Business.Service
 {
     public class FilmeService: IFilmeService
     {

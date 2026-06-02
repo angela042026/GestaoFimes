@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using static System.Net.WebRequestMethods;
 
-namespace GestaoFilmes.Data
+namespace GestaoFilmes.Data.Repositorios
 {
     public class FilmeRepository : IFilmeRepository
     {

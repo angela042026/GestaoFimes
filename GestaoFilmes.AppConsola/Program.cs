@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using GestaoFilmes.Domain.Entities;
-using GestaoFilmes.Domain.Interface;
-using GestaoFilmes.Business;
+﻿using GestaoFilmes.Business.Service;
 using GestaoFilmes.Data;
 using GestaoFilmes.Domain;
+using GestaoFilmes.Domain.Entities;
+using GestaoFilmes.Domain.Interface;
+using MovieManagement.Business;
+using System;
+using System.Collections.Generic;
 
 namespace GestaoFilmes.ConsoleUI
 {
@@ -16,7 +17,7 @@ namespace GestaoFilmes.ConsoleUI
     {
         // CORREÇÃO TÉCNICA: Especificamos o caminho exato de cada classe para evitar conflitos no compilador
         private static readonly GestaoFilmes.Domain.Interface.IFilmeRepository _filmeRepository = new GestaoFilmes.Data.FilmeRepository();
-        private static readonly GestaoFilmes.Business.FilmeService _filmeService = new GestaoFilmes.Business.FilmeService(_filmeRepository);
+        private static readonly FilmeService _filmeService = new GestaoFilmes.Business.FilmeService(_filmeRepository);
 
 
         static void Main(string[] args)
@@ -178,6 +179,40 @@ namespace GestaoFilmes.ConsoleUI
 
             Console.WriteLine("\nPressione qualquer tecla para voltar...");
             Console.ReadKey();
+
+            case "5":
+                Console.Write("Nome da categoria: ");
+                var nomeCat = Console.ReadLine();
+
+                try
+                {
+                    CategoriaService.Adicionar(new Categoria { Nome = nomeCat });
+                    Console.WriteLine("Categoria adicionada!");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Erro: " + ex.Message);
+                }
+                break;
+
+            case "6":
+                CategoriaService.Listar();
+                break;
+
+            case "7":
+                Console.Write("Nome da categoria: ");
+                var catProcurar = Console.ReadLine();
+                var c = CategoriaService.Procurar(catProcurar);
+                Console.WriteLine(c != null ? $"{c.Id} - {c.Nome}" : "Categoria não encontrada.");
+                break;
+
+            case "8":
+                Console.Write("Nome da categoria: ");
+                var catRemover = Console.ReadLine();
+                CategoriaService.Remover(catRemover);
+                Console.WriteLine("Categoria removida (se existia).");
+                break;
+
+            }
         }
-    }
 }
