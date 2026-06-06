@@ -1,11 +1,12 @@
 ﻿using GestaoFilmes.Domain.Entities;
 using GestaoFilmes.Domain.Interface;
-
+using GestaoFilmes.Domain.Interfaces;
 using System;
+using System.Collections.Generic;
 
 namespace MovieManagement.Business
 {
-    public class CategoriaService
+    public class CategoriaService : ICategoriaService
     {
         private readonly ICategoriaRepository _repo;
 
@@ -14,37 +15,30 @@ namespace MovieManagement.Business
             _repo = repo;
         }
 
-        public void RegistrarCategoria(Categoria categoria)
+        public void RegistarCategoria(Categoria categoria)
         {
             if (string.IsNullOrWhiteSpace(categoria.Nome))
                 throw new Exception("O nome da categoria é obrigatório.");
 
-            if (_repo.Procurar(categoria.Nome) != null)
+            if (_repo.ObterPorNome(categoria.Nome) != null)
                 throw new Exception("Já existe uma categoria com esse nome.");
 
             _repo.Adicionar(categoria);
         }
 
-        public bool EliminarCategoria(string nome)
+        public List<Categoria> ListarCategorias()
         {
-            _repo.Remover(nome);
+            return _repo.ObterTodas();
         }
 
         public Categoria ProcurarCategoriaPorNome(string nome)
         {
-            return _repo.Procurar(nome);
+            return _repo.ObterPorNome(nome);
         }
 
-        public void ListarCategorias()
+        public bool EliminarCategoria(int id)
         {
-            var categorias = _repo.Listar();
-
-            foreach (var c in categorias)
-                Console.WriteLine($"{c.Id} - {c.Nome}");
+            return _repo.Remover(id);
         }
     }
 }
-public void RegistrarCategoria(Categoria categoria);
-public List<Categoria> ListarCategorias();
-public Categoria ProcurarCategoriaPorId(int id);
-public bool EliminarCategoria(int id);

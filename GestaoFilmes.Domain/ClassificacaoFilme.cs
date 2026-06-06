@@ -4,7 +4,7 @@ using System.Text;
 
 namespace GestaoFilmes.Domain
 {
-    public enum Classificacao
+    public enum ClassificacaoFilme
     {
         Zero = 0,
         Um = 1,

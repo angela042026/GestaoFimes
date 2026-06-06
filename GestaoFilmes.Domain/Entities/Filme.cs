@@ -10,7 +10,7 @@
         public int Ano { get; set; }       
         public string Lingua { get; set; } 
         
-        public Classificacao Classificacao { get; set; }
+        public ClassificacaoFilme Classificacao { get; set; }
 
         public Filme()
         {

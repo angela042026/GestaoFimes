@@ -1,15 +1,14 @@
-﻿using GestaoFilmes.Domain.Entities;   // Para encontrar a classe 'Filme'
-using GestaoFilmes.Domain.Interface; // Para encontrar a interface 'IFilmeRepository'
+﻿using GestaoFilmes.Domain.Entities;
+using GestaoFilmes.Domain.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static System.Net.WebRequestMethods;
 
 namespace GestaoFilmes.Data.Repositorios
 {
     public class FilmeRepository : IFilmeRepository
     {
-        private readonly List<Filme> _filmes = new List<Filme>();
+        private readonly List<Filme> _filmes = new();
         private static int _proximoId = 1;
 
         public void Adicionar(Filme filme)
@@ -20,28 +19,24 @@ namespace GestaoFilmes.Data.Repositorios
 
         public List<Filme> ObterTodos()
         {
-            return _filmes;
+            return _filmes
+                .OrderBy(f => f.Titulo, StringComparer.OrdinalIgnoreCase)
+                .ToList();
         }
 
         public Filme ProcurarPorTitulo(string titulo)
         {
-            return _filmes.FirstOrDefault(
-                f => f.Titulo.Contains(titulo,
-                    StringComparison.OrdinalIgnoreCase));
+            return _filmes.FirstOrDefault(f =>
+                string.Equals(f.Titulo, titulo, StringComparison.OrdinalIgnoreCase));
         }
 
         public bool Remover(int id)
         {
             var filme = _filmes.FirstOrDefault(f => f.Id == id);
-            if (filme != null)
-            {
-                _filmes.Remove(filme);
-                return true;
-            }
-            return false;
+            if (filme == null) return false;
+
+            _filmes.Remove(filme);
+            return true;
         }
     }
 }
-
-        
-

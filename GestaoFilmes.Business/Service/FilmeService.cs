@@ -1,7 +1,7 @@
 ﻿using GestaoFilmes.Domain.Entities;
 using GestaoFilmes.Domain.Interface;
-
 using System;
+using System.Collections.Generic;
 
 namespace GestaoFilmes.Business.Service
 {
@@ -39,14 +39,23 @@ namespace GestaoFilmes.Business.Service
         public List<Filme> ListarFilmes()
         {
             // 1. O Serviço pede os dados puros ao repositório e devolve-os para a interface
-            return _repositorio.ObterTodos();
-        }
+       
+    var filmes = _repositorio.ObterTodos();
 
+    if (filmes == null || filmes.Count == 0)
+        throw new InvalidOperationException("Não existem filmes registados.");
+
+    return filmes;
+}
+
+        
+        
+            // 2. REGRA DE NEGÓCIO: Não permite buscas com textos vazios
         public Filme BuscarFilmePorTitulo(string titulo)
         {
-            // 2. REGRA DE NEGÓCIO: Não permite buscas com textos vazios
             if (string.IsNullOrWhiteSpace(titulo))
-                throw new ArgumentException("O título de pesquisa não pode estar vazio!");
+                throw new ArgumentException("O título não pode estar vazio.");
+
             return _repositorio.ProcurarPorTitulo(titulo);
         }
 

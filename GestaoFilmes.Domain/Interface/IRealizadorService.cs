@@ -1,17 +1,15 @@
-﻿using GestaoFilmes.Domain.Entities;
-using System;
+﻿
+using GestaoFilmes.Domain.Entities;
+using GestaoFilmes.Domain.Entities.GestaoFilmes.Domain.Entities;
 using System.Collections.Generic;
-using System.Text;
-using GestaoFilmes.Domain.Interface;
-
 
 namespace GestaoFilmes.Domain.Interface
 {
     public interface IRealizadorService
     {
-        public void RegistrarRealizador(Realizador categoria);
-        public List<Realizador> ListarRealizador();
-        public void EliminarRealizador(string nome);
-        public bool EliminarRealizador(int id);
+        void RegistarRealizador(Realizador realizador);
+        bool EliminarRealizador(int id);
+        Realizador ProcurarRealizadorPorId(int id);
+        List<Realizador> ListarRealizadores();
     }
 }

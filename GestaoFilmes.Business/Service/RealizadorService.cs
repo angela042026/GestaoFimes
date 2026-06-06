@@ -1,19 +1,21 @@
-﻿using GestaoFilmes.Domain.Interface;
-
+﻿using GestaoFilmes.Domain.Entities;
+using GestaoFilmes.Domain.Entities.GestaoFilmes.Domain.Entities;
+using GestaoFilmes.Domain.Interface;
 using System;
+using System.Collections.Generic;
 
 namespace MovieManagement.Business
 {
-    public class RealizadorService
+    public class RealizadorService : IRealizadorService
     {
-        private readonly IRealizadorRepository _repo;
+        private readonly IRealizadorRepository _realizadorRepository;
 
-        public RealizadorService(IRealizadorRepository repo)
+        public RealizadorService(IRealizadorRepository realizadorRepository)
         {
-            _repo = repo;
+            _realizadorRepository = realizadorRepository;
         }
 
-        public void RegistrarRealizador(Realizador realizador)
+        public void RegistarRealizador(Realizador realizador)
         {
             if (string.IsNullOrWhiteSpace(realizador.Nome))
                 throw new Exception("O nome é obrigatório.");
@@ -21,26 +23,22 @@ namespace MovieManagement.Business
             if (string.IsNullOrWhiteSpace(realizador.Pais))
                 throw new Exception("O país é obrigatório.");
 
-            _repo.Adicionar(realizador);
+            _realizadorRepository.Adicionar(realizador);
         }
 
-
-        public void EliminarRealizador(string nome)
+        public bool EliminarRealizador(int id)
         {
-            _repo.Remover(nome);
+            return _realizadorRepository.Remover(id);
         }
 
         public Realizador ProcurarRealizadorPorId(int id)
         {
-            return _repo.Procurar(id);
+            return _realizadorRepository.ObterPorId(id);
         }
 
-        public void ListarRealizador()
+        public List<Realizador> ListarRealizadores()
         {
-            var realizadores = _repo.Listar();
-
-            foreach (var r in realizadores)
-                Console.WriteLine($"{r.Id} - {r.Nome} ({r.Pais})");
+            return _realizadorRepository.ObterTodos();
         }
     }
 }

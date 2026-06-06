@@ -4,16 +4,14 @@ using System.Text;
 
 namespace GestaoFilmes.Domain.Entities
 {
-    internal class Realizador
+    namespace GestaoFilmes.Domain.Entities
     {
-        public int Id { get; set; }
-        public string Nome { get; set; }
-        public string Pais { get; set; }
-
-        public Realizador()
+        public class Realizador
         {
-            Nome = string.Empty;
-            Pais = string.Empty;
+            public int Id { get; set; }
+            public string Nome { get; set; } 
+            public string Pais { get; set; } 
         }
     }
+
 }
