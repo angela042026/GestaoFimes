@@ -3,15 +3,31 @@ using GestaoFilmes.Domain.Interface;
 using System.Collections.Generic;
 using System.Data.SQLite;
 
-
-
 namespace GestaoFilmes.Data.Repositorios
 {
     public class RealizadorRepositorySQLite : IRealizadorRepository
     {
-        private readonly string _connectionString = "Data Source=filmes.db";
+        private readonly string _connectionString = "Data Source=filmes.db;Version=3;";
 
-        public void Adicionar(Realizador realizador)
+        // CONSTRUTOR: Garante que a tabela Realizador é criada na base de dados
+        public RealizadorRepositorySQLite()
+        {
+            using var conn = new SQLiteConnection(_connectionString);
+            conn.Open();
+
+            string createTableSql = @"
+                CREATE TABLE IF NOT EXISTS Realizador (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Nome TEXT NOT NULL,
+                    Pais TEXT
+                );";
+
+            using var cmd = new SQLiteCommand(createTableSql, conn);
+            cmd.ExecuteNonQuery();
+        }
+
+        // Alterado de 'Adicionar' para 'Registar' (ajusta conforme a tua IRealizadorRepository)
+        public void Registar(Realizador realizador)
         {
             using var conn = new SQLiteConnection(_connectionString);
             conn.Open();
@@ -26,14 +42,15 @@ namespace GestaoFilmes.Data.Repositorios
             realizador.Id = (int)conn.LastInsertRowId;
         }
 
-        public List<Realizador> ObterTodos()
+        // Alterado de 'ObterTodos' para 'Listar' (ajusta conforme a tua IRealizadorRepository)
+        public List<Realizador> Listar()
         {
             var lista = new List<Realizador>();
 
             using var conn = new SQLiteConnection(_connectionString);
             conn.Open();
 
-            string sql = "SELECT * FROM Realizador";
+            string sql = "SELECT Id, Nome, Pais FROM Realizador";
 
             using var cmd = new SQLiteCommand(sql, conn);
             using var reader = cmd.ExecuteReader();
@@ -44,19 +61,20 @@ namespace GestaoFilmes.Data.Repositorios
                 {
                     Id = reader.GetInt32(0),
                     Nome = reader.GetString(1),
-                    Pais = reader.GetString(2)
+                    Pais = reader.IsDBNull(2) ? string.Empty : reader.GetString(2) // Evita erros se o País estiver nulo
                 });
             }
 
             return lista;
         }
 
+        // Nome mantido ou ajustado para 'ProcurarPorId' / 'ObterPorId' conforme a tua interface
         public Realizador ProcurarPorId(int id)
         {
             using var conn = new SQLiteConnection(_connectionString);
             conn.Open();
 
-            string sql = "SELECT * FROM Realizador WHERE Id = @Id";
+            string sql = "SELECT Id, Nome, Pais FROM Realizador WHERE Id = @Id";
 
             using var cmd = new SQLiteCommand(sql, conn);
             cmd.Parameters.AddWithValue("@Id", id);
@@ -69,14 +87,15 @@ namespace GestaoFilmes.Data.Repositorios
                 {
                     Id = reader.GetInt32(0),
                     Nome = reader.GetString(1),
-                    Pais = reader.GetString(2)
+                    Pais = reader.IsDBNull(2) ? string.Empty : reader.GetString(2)
                 };
             }
 
             return null;
         }
 
-        public bool Remover(int id)
+        // Alterado de 'Remover' para 'Eliminar' (ajusta conforme a tua IRealizadorRepository)
+        public bool Eliminar(int id)
         {
             using var conn = new SQLiteConnection(_connectionString);
             conn.Open();

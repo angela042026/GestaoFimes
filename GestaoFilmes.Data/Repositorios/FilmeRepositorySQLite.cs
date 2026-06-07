@@ -3,16 +3,36 @@ using GestaoFilmes.Domain.Interface;
 using System.Collections.Generic;
 using System.Data.SQLite;
 
-
-
-
 namespace GestaoFilmes.Data.Repositorios
 {
     public class FilmeRepositorySQLite : IFilmeRepository
     {
-        private readonly string _connectionString = "Data Source=filmes.db";
+        private readonly string _connectionString = "Data Source=filmes.db;Version=3;";
 
-        public void Adicionar(Filme filme)
+        // CONSTRUTOR: Garante que a tabela existe antes de qualquer operação!
+        public FilmeRepositorySQLite()
+        {
+            using var conn = new SQLiteConnection(_connectionString);
+            conn.Open();
+
+            // Cria a tabela Filme se ela não existir
+            string createTableSql = @"
+                CREATE TABLE IF NOT EXISTS Filme (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Titulo TEXT NOT NULL,
+                    Ano INTEGER,
+                    Lingua TEXT,
+                    Classificacao INTEGER,
+                    CategoriaId INTEGER,
+                    RealizadorId INTEGER
+                );";
+
+            using var cmd = new SQLiteCommand(createTableSql, conn);
+            cmd.ExecuteNonQuery();
+        }
+
+        // Alterado de 'Adicionar' para 'Registar' (ajusta conforme a tua IFilmeRepository)
+        public void Registar(Filme filme)
         {
             using var conn = new SQLiteConnection(_connectionString);
             conn.Open();
@@ -31,17 +51,19 @@ namespace GestaoFilmes.Data.Repositorios
 
             cmd.ExecuteNonQuery();
 
+            // Captura o ID auto-incrementado gerado pelo SQLite
             filme.Id = (int)conn.LastInsertRowId;
         }
 
-        public List<Filme> ObterTodos()
+        // Alterado de 'ObterTodos' para 'Listar' (ajusta conforme a tua IFilmeRepository)
+        public List<Filme> Listar()
         {
             var lista = new List<Filme>();
 
             using var conn = new SQLiteConnection(_connectionString);
             conn.Open();
 
-            string sql = "SELECT * FROM Filme";
+            string sql = "SELECT Id, Titulo, Ano, Lingua, Classificacao, CategoriaId, RealizadorId FROM Filme";
 
             using var cmd = new SQLiteCommand(sql, conn);
             using var reader = cmd.ExecuteReader();
@@ -63,15 +85,17 @@ namespace GestaoFilmes.Data.Repositorios
             return lista;
         }
 
-        public Filme ProcurarPorTitulo(string titulo)
+        // Alterado de 'ProcurarPorTitulo' para 'ObterPorTitulo' (ajusta conforme a tua IFilmeRepository)
+        public Filme ObterPorTitulo(string titulo)
         {
             using var conn = new SQLiteConnection(_connectionString);
             conn.Open();
 
-            string sql = "SELECT * FROM Filme WHERE LOWER(Titulo) = @Titulo";
+            string sql = "SELECT Id, Titulo, Ano, Lingua, Classificacao, CategoriaId, RealizadorId FROM Filme WHERE LOWER(Titulo) = @Titulo";
 
             using var cmd = new SQLiteCommand(sql, conn);
-            cmd.Parameters.AddWithValue("@Titulo", titulo);
+            // CORREÇÃO: Forçar o parâmetro a ir em minúsculas também
+            cmd.Parameters.AddWithValue("@Titulo", titulo.Trim().ToLower());
 
             using var reader = cmd.ExecuteReader();
 
@@ -92,7 +116,8 @@ namespace GestaoFilmes.Data.Repositorios
             return null;
         }
 
-        public bool Remover(int id)
+        // Alterado de 'Remover' para 'Eliminar' (ajusta conforme a tua IFilmeRepository)
+        public bool Eliminar(int id)
         {
             using var conn = new SQLiteConnection(_connectionString);
             conn.Open();
@@ -106,4 +131,3 @@ namespace GestaoFilmes.Data.Repositorios
         }
     }
 }
-
