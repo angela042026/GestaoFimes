@@ -2,66 +2,111 @@
 using GestaoFilmes.Data.Repositorios;
 using GestaoFilmes.Domain;
 using GestaoFilmes.Domain.Entities;
-using GestaoFilmes.Domain.Entities.GestaoFilmes.Domain.Entities;
 using GestaoFilmes.Domain.Interface;
 using GestaoFilmes.Domain.Interfaces;
 using MovieManagement.Business;
 using System;
-using System.Collections.Generic;
-using GestaoFilmes.Data.Repositorios;
 
 namespace GestaoFilmes.ConsoleUI
 {
     class Program
     {
-        private static readonly IFilmeRepository _filmeRepository = new FilmeRepository();
-        private static readonly FilmeService _filmeService = new FilmeService(_filmeRepository);
+        // ---------------------- REPOSITÓRIOS EM MEMÓRIA ----------------------
 
-        private static readonly ICategoriaRepository _categoriaRepository = new CategoriaRepository();
-        private static readonly ICategoriaService _categoriaService = new CategoriaService(_categoriaRepository);
+        static IFilmeRepository _filmeRepository = new FilmeRepositorySQLite();
+        static ICategoriaRepository _categoriaRepository = new CategoriaRepositorySQLite();
+        static IRealizadorRepository _realizadorRepository = new RealizadorRepositorySQLite();
 
-        private static readonly IRealizadorRepository _realizadorRepository = new RealizadorRepository();
-        private static readonly IRealizadorService _realizadorService = new RealizadorService(_realizadorRepository);
+
+
+        // ---------------------- SERVIÇOS ----------------------
+
+        private static readonly ICategoriaService _categoriaService =
+            new CategoriaService(_categoriaRepository);
+
+        static IFilmeService _filmeService =
+            new FilmeService(_filmeRepository, _categoriaRepository, _realizadorRepository);
+
+        private static readonly IRealizadorService _realizadorService =
+            new RealizadorService(_realizadorRepository);
+
+        // ---------------------- FUNÇÕES AUXILIARES ----------------------
+
+        private static string ConverterParaEstrelas(int nota)
+        {
+            return new string('★', nota) + new string('☆', 5 - nota);
+        }
 
         static void Main(string[] args)
         {
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
             bool continuar = true;
 
             while (continuar)
             {
                 Console.Clear();
-                Console.WriteLine("=================================");
-                Console.WriteLine("          GESTÃO DE FILMES       ");
-                Console.WriteLine("=================================");
-                Console.WriteLine("1. Filmes");
-                Console.WriteLine("2. Categorias");
-                Console.WriteLine("3. Realizadores");
-                Console.WriteLine("0. Sair");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("╔══════════════════════════════════════╗");
+                Console.WriteLine("║            GESTÃO DE FILMES          ║");
+                Console.WriteLine("╚══════════════════════════════════════╝");
+                Console.ResetColor();
+
+                Console.WriteLine("1. 🎬 Filmes");
+                Console.WriteLine("2. 🏷️ Categorias");
+                Console.WriteLine("3. 🎥 Realizadores");
+                Console.WriteLine("0. ❌ Sair");
                 Console.Write("\nEscolha uma opção: ");
 
                 string opcao = Console.ReadLine() ?? string.Empty;
 
                 switch (opcao)
                 {
-                    case "1":
-                        MenuFilmes();
-                        break;
-                    case "2":
-                        MenuCategorias();
-                        break;
-                    case "3":
-                        MenuRealizadores();
-                        break;
-                    case "0":
-                        continuar = false;
-                        break;
-                    default:
-                        Console.WriteLine("\nOpção inválida! Pressione qualquer tecla para tentar novamente.");
-                        Console.ReadKey();
-                        break;
+                    case "1": MenuFilmes(); break;
+                    case "2": MenuCategorias(); break;
+                    case "3": MenuRealizadores(); break;
+                    case "0": continuar = false; break;
+                    default: MostrarErro("Opção inválida!"); break;
                 }
             }
         }
+
+        // ---------------------- ESTILO VISUAL ----------------------
+
+        private static void Titulo(string texto)
+        {
+            Console.Clear();
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine("╔══════════════════════════════════════╗");
+            Console.WriteLine($"║   {texto.PadLeft((38 + texto.Length) / 2).PadRight(38)}   ║");
+            Console.WriteLine("╚══════════════════════════════════════╝\n");
+            Console.ResetColor();
+        }
+
+        private static void MostrarErro(string msg)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("\n" + msg);
+            Console.ResetColor();
+            Console.WriteLine("\nPressione qualquer tecla para continuar...");
+            Console.ReadKey();
+        }
+
+        private static void MostrarSucesso(string msg)
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("\n" + msg);
+            Console.ResetColor();
+            Console.WriteLine("\nPressione qualquer tecla para continuar...");
+            Console.ReadKey();
+        }
+
+        private static void Pausa()
+        {
+            Console.WriteLine("\nPressione qualquer tecla para voltar...");
+            Console.ReadKey();
+        }
+
+        // ---------------------- FILMES ----------------------
 
         private static void MenuFilmes()
         {
@@ -69,136 +114,32 @@ namespace GestaoFilmes.ConsoleUI
 
             while (!voltar)
             {
-                Console.Clear();
-                Console.WriteLine("=================================");
-                Console.WriteLine("            FILMES               ");
-                Console.WriteLine("=================================");
-                Console.WriteLine("1. Adicionar filme");
-                Console.WriteLine("2. Listar filmes");
-                Console.WriteLine("3. Procurar filme");
-                Console.WriteLine("4. Remover filme");
-                Console.WriteLine("0. Voltar");
+                Titulo("FILMES");
+
+                Console.WriteLine("1. ➕ Adicionar filme");
+                Console.WriteLine("2. 📄 Listar filmes");
+                Console.WriteLine("3. 🔍 Procurar filme");
+                Console.WriteLine("4. 🗑️ Remover filme");
+                Console.WriteLine("0. 🔙 Voltar");
                 Console.Write("\nEscolha uma opção: ");
 
                 string opcao = Console.ReadLine() ?? string.Empty;
 
                 switch (opcao)
                 {
-                    case "1":
-                        MenuAdicionarFilme();
-                        break;
-                    case "2":
-                        MenuListarFilmes();
-                        break;
-                    case "3":
-                        MenuProcurarFilme();
-                        break;
-                    case "4":
-                        MenuRemoverFilme();
-                        break;
-                    case "0":
-                        voltar = true;
-                        break;
-                    default:
-                        Console.WriteLine("\nOpção inválida! Pressione qualquer tecla para tentar novamente.");
-                        Console.ReadKey();
-                        break;
-                }
-            }
-        }
-
-        private static void MenuCategorias()
-        {
-            bool voltar = false;
-
-            while (!voltar)
-            {
-                Console.Clear();
-                Console.WriteLine("=================================");
-                Console.WriteLine("            CATEGORIAS           ");
-                Console.WriteLine("=================================");
-                Console.WriteLine("1. Adicionar categoria");
-                Console.WriteLine("2. Listar categorias");
-                Console.WriteLine("3. Procurar categoria por nome");
-                Console.WriteLine("4. Remover categoria por ID");
-                Console.WriteLine("0. Voltar");
-                Console.Write("\nEscolha uma opção: ");
-
-                string opcao = Console.ReadLine() ?? string.Empty;
-
-                switch (opcao)
-                {
-                    case "1":
-                        MenuAdicionarCategoria();
-                        break;
-                    case "2":
-                        MenuListarCategorias();
-                        break;
-                    case "3":
-                        MenuProcurarCategoria();
-                        break;
-                    case "4":
-                        MenuRemoverCategoria();
-                        break;
-                    case "0":
-                        voltar = true;
-                        break;
-                    default:
-                        Console.WriteLine("\nOpção inválida! Pressione qualquer tecla para tentar novamente.");
-                        Console.ReadKey();
-                        break;
-                }
-            }
-        }
-
-        private static void MenuRealizadores()
-        {
-            bool voltar = false;
-
-            while (!voltar)
-            {
-                Console.Clear();
-                Console.WriteLine("=================================");
-                Console.WriteLine("           REALIZADORES          ");
-                Console.WriteLine("=================================");
-                Console.WriteLine("1. Adicionar realizador");
-                Console.WriteLine("2. Listar realizadores");
-                Console.WriteLine("3. Procurar realizador por nome");
-                Console.WriteLine("4. Remover realizador por ID");
-                Console.WriteLine("0. Voltar");
-                Console.Write("\nEscolha uma opção: ");
-
-                string opcao = Console.ReadLine() ?? string.Empty;
-
-                switch (opcao)
-                {
-                    case "1":
-                        MenuAdicionarRealizador();
-                        break;
-                    case "2":
-                        MenuListarRealizadores();
-                        break;
-                    case "3":
-                        MenuProcurarRealizador();
-                        break;
-                    case "4":
-                        MenuRemoverRealizador();
-                        break;
-                    case "0":
-                        voltar = true;
-                        break;
-                    default:
-                        Console.WriteLine("\nOpção inválida! Pressione qualquer tecla para tentar novamente.");
-                        Console.ReadKey();
-                        break;
+                    case "1": MenuAdicionarFilme(); break;
+                    case "2": MenuListarFilmes(); break;
+                    case "3": MenuProcurarFilme(); break;
+                    case "4": MenuRemoverFilme(); break;
+                    case "0": voltar = true; break;
+                    default: MostrarErro("Opção inválida!"); break;
                 }
             }
         }
 
         private static void MenuAdicionarFilme()
         {
-            Console.Clear();
-            Console.WriteLine("=== ADICIONAR NOVO FILME ===\n");
+            Titulo("ADICIONAR FILME");
 
             Filme novoFilme = new Filme();
 
@@ -212,69 +153,70 @@ namespace GestaoFilmes.ConsoleUI
             Console.Write("Língua: ");
             novoFilme.Lingua = Console.ReadLine() ?? string.Empty;
 
+            Console.Write("ID da categoria: ");
+            novoFilme.CategoriaId = int.Parse(Console.ReadLine());
+
+            Console.Write("ID do realizador: ");
+            novoFilme.RealizadorId = int.Parse(Console.ReadLine());
+
             Console.WriteLine("\nClassificação:");
             Console.WriteLine("0-Péssimo | 1-Mau | 2-Médio | 3-Bom | 4-Muito Bom | 5-Excelente");
             Console.Write("Escolha (0-5): ");
+
             if (int.TryParse(Console.ReadLine(), out int nota) && nota >= 0 && nota <= 5)
             {
                 novoFilme.Classificacao = (ClassificacaoFilme)nota;
             }
             else
             {
-                Console.WriteLine("Classificação inválida. Só são permitidos valores entre 0 e 5.");
-                Console.ReadKey();
+                MostrarErro("Classificação inválida. Só são permitidos valores entre 0 e 5.");
                 return;
             }
 
             try
             {
                 _filmeService.RegistarFilme(novoFilme);
-                Console.WriteLine("\nFilme adicionado com sucesso com o ID: " + novoFilme.Id);
+                MostrarSucesso("Filme adicionado com sucesso! ID: " + novoFilme.Id);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"\nErro: {ex.Message}");
+                MostrarErro(ex.Message);
             }
-
-            Console.WriteLine("\nPressione qualquer tecla para voltar...");
-            Console.ReadKey();
         }
 
         private static void MenuListarFilmes()
         {
-            Console.Clear();
-            Console.WriteLine("=== LISTA DE FILMES REGISTADOS ===\n");
+            Titulo("LISTA DE FILMES");
 
             var lista = _filmeService.ListarFilmes();
 
             if (lista.Count == 0)
             {
-                Console.WriteLine("Nenhum filme registado no sistema.");
-            }
-            else
-            {
-                foreach (var f in lista)
-                {
-                    Console.WriteLine("---------------------------------");
-                    Console.WriteLine($"ID: {f.Id}");
-                    Console.WriteLine($"Título: {f.Titulo}");
-                    Console.WriteLine($"Ano: {f.Ano}");
-                    Console.WriteLine($"Língua: {f.Lingua}");
-                    Console.WriteLine($"Classificação: {(int)f.Classificacao}");
-                    Console.WriteLine();
-                }
+                MostrarErro("Nenhum filme registado.");
+                return;
             }
 
-            Console.WriteLine("Pressione qualquer tecla para voltar...");
-            Console.ReadKey();
+            foreach (var f in lista)
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("---------------------------------");
+                Console.WriteLine($"ID: {f.Id}");
+                Console.WriteLine($"Título: {f.Titulo}");
+                Console.WriteLine($"Ano: {f.Ano}");
+                Console.WriteLine($"Língua: {f.Lingua}");
+                Console.WriteLine($"Classificação: {(int)f.Classificacao} {ConverterParaEstrelas((int)f.Classificacao)}");
+                Console.ResetColor();
+                Console.WriteLine();
+            }
+
+            Pausa();
         }
 
         private static void MenuProcurarFilme()
         {
-            Console.Clear();
-            Console.WriteLine("=== PROCURAR FILME POR TÍTULO ===\n");
+            Titulo("PROCURAR FILME");
 
-            Console.Write("Digite o título exato que procura: ");
+            Console.Write("Digite o título exato: ");
             string busca = Console.ReadLine() ?? string.Empty;
 
             try
@@ -283,33 +225,36 @@ namespace GestaoFilmes.ConsoleUI
 
                 if (filme != null)
                 {
+                    Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine("\nFilme Encontrado:");
+                    Console.ResetColor();
                     Console.WriteLine($"-> ID: {filme.Id}");
                     Console.WriteLine($"-> Título: {filme.Titulo}");
                     Console.WriteLine($"-> Ano: {filme.Ano}");
                     Console.WriteLine($"-> Língua: {filme.Lingua}");
                     Console.WriteLine($"-> Nota: {(int)filme.Classificacao}");
+                    Console.WriteLine($"Classificação: {(int)filme.Classificacao} {ConverterParaEstrelas((int)filme.Classificacao)}");
                 }
                 else
                 {
-                    Console.WriteLine("\nNenhum filme encontrado com esse título.");
+                    MostrarErro("Nenhum filme encontrado com esse título.");
+                    return;
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"\nErro: {ex.Message}");
+                MostrarErro(ex.Message);
+                return;
             }
 
-            Console.WriteLine("\nPressione qualquer tecla para voltar...");
-            Console.ReadKey();
+            Pausa();
         }
 
         private static void MenuRemoverFilme()
         {
-            Console.Clear();
-            Console.WriteLine("=== REMOVER FILME ===\n");
+            Titulo("REMOVER FILME");
 
-            Console.Write("Digite o ID do filme a remover: ");
+            Console.Write("Digite o ID do filme: ");
             if (int.TryParse(Console.ReadLine(), out int id))
             {
                 try
@@ -317,28 +262,55 @@ namespace GestaoFilmes.ConsoleUI
                     bool apagou = _filmeService.EliminarFilme(id);
 
                     if (apagou)
-                        Console.WriteLine("\nFilme removido com sucesso!");
+                        MostrarSucesso("Filme removido com sucesso!");
                     else
-                        Console.WriteLine("\nNão foi encontrado nenhum filme com esse ID.");
+                        MostrarErro("Nenhum filme encontrado com esse ID.");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"\nErro: {ex.Message}");
+                    MostrarErro(ex.Message);
                 }
             }
             else
             {
-                Console.WriteLine("\nID inválido! Deve digitar um número.");
+                MostrarErro("ID inválido!");
             }
+        }
 
-            Console.WriteLine("\nPressione qualquer tecla para voltar...");
-            Console.ReadKey();
+        // ---------------------- CATEGORIAS ----------------------
+
+        private static void MenuCategorias()
+        {
+            bool voltar = false;
+
+            while (!voltar)
+            {
+                Titulo("CATEGORIAS");
+
+                Console.WriteLine("1. ➕ Adicionar categoria");
+                Console.WriteLine("2. 📄 Listar categorias");
+                Console.WriteLine("3. 🔍 Procurar categoria");
+                Console.WriteLine("4. 🗑️ Remover categoria");
+                Console.WriteLine("0. 🔙 Voltar");
+                Console.Write("\nEscolha uma opção: ");
+
+                string opcao = Console.ReadLine() ?? string.Empty;
+
+                switch (opcao)
+                {
+                    case "1": MenuAdicionarCategoria(); break;
+                    case "2": MenuListarCategorias(); break;
+                    case "3": MenuProcurarCategoria(); break;
+                    case "4": MenuRemoverCategoria(); break;
+                    case "0": voltar = true; break;
+                    default: MostrarErro("Opção inválida!"); break;
+                }
+            }
         }
 
         private static void MenuAdicionarCategoria()
         {
-            Console.Clear();
-            Console.WriteLine("=== ADICIONAR CATEGORIA ===\n");
+            Titulo("ADICIONAR CATEGORIA");
 
             Categoria categoria = new Categoria();
 
@@ -348,44 +320,39 @@ namespace GestaoFilmes.ConsoleUI
             try
             {
                 _categoriaService.RegistarCategoria(categoria);
-                Console.WriteLine("\nCategoria adicionada com sucesso.");
+                MostrarSucesso("Categoria adicionada com sucesso.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"\nErro: {ex.Message}");
+                MostrarErro(ex.Message);
             }
-
-            Console.WriteLine("\nPressione qualquer tecla para voltar...");
-            Console.ReadKey();
         }
 
         private static void MenuListarCategorias()
         {
-            Console.Clear();
-            Console.WriteLine("=== LISTA DE CATEGORIAS ===\n");
+            Titulo("LISTA DE CATEGORIAS");
 
             var categorias = _categoriaService.ListarCategorias();
 
             if (categorias.Count == 0)
             {
-                Console.WriteLine("Nenhuma categoria registada.");
-            }
-            else
-            {
-                foreach (var c in categorias)
-                {
-                    Console.WriteLine($"{c.Id} - {c.Nome}");
-                }
+                MostrarErro("Nenhuma categoria registada.");
+                return;
             }
 
-            Console.WriteLine("\nPressione qualquer tecla para voltar...");
-            Console.ReadKey();
+            foreach (var c in categorias)
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine($"{c.Id} - {c.Nome}");
+                Console.ResetColor();
+            }
+
+            Pausa();
         }
 
         private static void MenuProcurarCategoria()
         {
-            Console.Clear();
-            Console.WriteLine("=== PROCURAR CATEGORIA ===\n");
+            Titulo("PROCURAR CATEGORIA");
 
             Console.Write("Nome da categoria: ");
             string nome = Console.ReadLine() ?? string.Empty;
@@ -393,18 +360,23 @@ namespace GestaoFilmes.ConsoleUI
             var categoria = _categoriaService.ProcurarCategoriaPorNome(nome);
 
             if (categoria != null)
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine($"\n{categoria.Id} - {categoria.Nome}");
+                Console.ResetColor();
+            }
             else
-                Console.WriteLine("\nCategoria não encontrada.");
+            {
+                MostrarErro("Categoria não encontrada.");
+                return;
+            }
 
-            Console.WriteLine("\nPressione qualquer tecla para voltar...");
-            Console.ReadKey();
+            Pausa();
         }
 
         private static void MenuRemoverCategoria()
         {
-            Console.Clear();
-            Console.WriteLine("=== REMOVER CATEGORIA ===\n");
+            Titulo("REMOVER CATEGORIA");
 
             Console.Write("Digite o ID da categoria: ");
             if (int.TryParse(Console.ReadLine(), out int id))
@@ -412,23 +384,50 @@ namespace GestaoFilmes.ConsoleUI
                 bool apagou = _categoriaService.EliminarCategoria(id);
 
                 if (apagou)
-                    Console.WriteLine("\nCategoria removida com sucesso.");
+                    MostrarSucesso("Categoria removida com sucesso.");
                 else
-                    Console.WriteLine("\nCategoria não encontrada.");
+                    MostrarErro("Categoria não encontrada.");
             }
             else
             {
-                Console.WriteLine("\nID inválido!");
+                MostrarErro("ID inválido!");
             }
+        }
 
-            Console.WriteLine("\nPressione qualquer tecla para voltar...");
-            Console.ReadKey();
+        // ---------------------- REALIZADORES ----------------------
+
+        private static void MenuRealizadores()
+        {
+            bool voltar = false;
+
+            while (!voltar)
+            {
+                Titulo("REALIZADORES");
+
+                Console.WriteLine("1. ➕ Adicionar realizador");
+                Console.WriteLine("2. 📄 Listar realizadores");
+                Console.WriteLine("3. 🔍 Procurar realizador");
+                Console.WriteLine("4. 🗑️ Remover realizador");
+                Console.WriteLine("0. 🔙 Voltar");
+                Console.Write("\nEscolha uma opção: ");
+
+                string opcao = Console.ReadLine() ?? string.Empty;
+
+                switch (opcao)
+                {
+                    case "1": MenuAdicionarRealizador(); break;
+                    case "2": MenuListarRealizadores(); break;
+                    case "3": MenuProcurarRealizador(); break;
+                    case "4": MenuRemoverRealizador(); break;
+                    case "0": voltar = true; break;
+                    default: MostrarErro("Opção inválida!"); break;
+                }
+            }
         }
 
         private static void MenuAdicionarRealizador()
         {
-            Console.Clear();
-            Console.WriteLine("=== ADICIONAR REALIZADOR ===\n");
+            Titulo("ADICIONAR REALIZADOR");
 
             Realizador realizador = new Realizador();
 
@@ -441,47 +440,39 @@ namespace GestaoFilmes.ConsoleUI
             try
             {
                 _realizadorService.RegistarRealizador(realizador);
-                Console.WriteLine("\nRealizador adicionado com sucesso.");
+                MostrarSucesso("Realizador adicionado com sucesso.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"\nErro: {ex.Message}");
+                MostrarErro(ex.Message);
             }
-
-            Console.WriteLine("\nPressione qualquer tecla para voltar...");
-            Console.ReadKey();
         }
 
         private static void MenuListarRealizadores()
         {
-            Console.Clear();
-            Console.WriteLine("=== LISTA DE REALIZADORES ===\n");
+            Titulo("LISTA DE REALIZADORES");
 
             var realizadores = _realizadorService.ListarRealizadores();
 
             if (realizadores.Count == 0)
             {
-                Console.WriteLine("Nenhum realizador registado.");
-            }
-            else
-            {
-                foreach (var r in realizadores)
-                {
-                    Console.WriteLine($"{r.Id} - {r.Nome} ({r.Pais})");
-                }
+                MostrarErro("Nenhum realizador registado.");
+                return;
             }
 
-            Console.WriteLine("\nPressione qualquer tecla para voltar...");
-            Console.ReadKey();
+            foreach (var r in realizadores)
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine($"{r.Id} - {r.Nome} ({r.Pais})");
+                Console.ResetColor();
+            }
+
+            Pausa();
         }
 
         private static void MenuProcurarRealizador()
         {
-            Console.Clear();
-            Console.WriteLine("=== PROCURAR REALIZADOR ===\n");
-
-            Console.Write("Nome do realizador: ");
-            string nome = Console.ReadLine() ?? string.Empty;
+            Titulo("PROCURAR REALIZADOR");
 
             Console.Write("Digite o ID do realizador: ");
             if (int.TryParse(Console.ReadLine(), out int id))
@@ -489,27 +480,28 @@ namespace GestaoFilmes.ConsoleUI
                 var realizador = _realizadorService.ProcurarRealizadorPorId(id);
 
                 if (realizador != null)
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine($"\n{realizador.Id} - {realizador.Nome} ({realizador.Pais})");
+                    Console.ResetColor();
+                }
                 else
-                    Console.WriteLine("\nRealizador não encontrado.");
+                {
+                    MostrarErro("Realizador não encontrado.");
+                    return;
+                }
 
-                Console.WriteLine("\nPressione qualquer tecla para voltar...");
-                Console.ReadKey();
+                Pausa();
             }
             else
             {
-                Console.WriteLine("\nID inválido!");
-                Console.WriteLine("\nPressione qualquer tecla para voltar...");
-                Console.ReadKey();
+                MostrarErro("ID inválido!");
             }
         }
 
-
-
         private static void MenuRemoverRealizador()
         {
-            Console.Clear();
-            Console.WriteLine("=== REMOVER REALIZADOR ===\n");
+            Titulo("REMOVER REALIZADOR");
 
             Console.Write("Digite o ID do realizador: ");
             if (int.TryParse(Console.ReadLine(), out int id))
@@ -517,17 +509,14 @@ namespace GestaoFilmes.ConsoleUI
                 bool apagou = _realizadorService.EliminarRealizador(id);
 
                 if (apagou)
-                    Console.WriteLine("\nRealizador removido com sucesso.");
+                    MostrarSucesso("Realizador removido com sucesso.");
                 else
-                    Console.WriteLine("\nRealizador não encontrado.");
+                    MostrarErro("Realizador não encontrado.");
             }
             else
             {
-                Console.WriteLine("\nID inválido!");
+                MostrarErro("ID inválido!");
             }
-
-            Console.WriteLine("\nPressione qualquer tecla para voltar...");
-            Console.ReadKey();
         }
     }
 }

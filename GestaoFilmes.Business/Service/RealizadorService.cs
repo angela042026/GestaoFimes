@@ -1,5 +1,5 @@
 ﻿using GestaoFilmes.Domain.Entities;
-using GestaoFilmes.Domain.Entities.GestaoFilmes.Domain.Entities;
+
 using GestaoFilmes.Domain.Interface;
 using System;
 using System.Collections.Generic;
@@ -33,7 +33,7 @@ namespace MovieManagement.Business
 
         public Realizador ProcurarRealizadorPorId(int id)
         {
-            return _realizadorRepository.ObterPorId(id);
+            return _realizadorRepository.ProcurarPorId(id);
         }
 
         public List<Realizador> ListarRealizadores()

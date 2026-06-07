@@ -12,6 +12,9 @@
         
         public ClassificacaoFilme Classificacao { get; set; }
 
+        public int CategoriaId { get; set; }
+        public int RealizadorId { get; set; }
+
         public Filme()
         {
             Titulo = string.Empty;

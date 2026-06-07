@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.8" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\GestaoFilmes.Business\GestaoFilmes.Business.csproj" />
     <ProjectReference Include="..\GestaoFilmes.Data\GestaoFilmes.Data.csproj" />
     <ProjectReference Include="..\GestaoFilmes.Domain\GestaoFilmes.Domain.csproj" />

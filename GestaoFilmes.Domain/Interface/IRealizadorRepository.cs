@@ -1,5 +1,5 @@
 ﻿using GestaoFilmes.Domain.Entities;
-using GestaoFilmes.Domain.Entities.GestaoFilmes.Domain.Entities;
+
 using System.Collections.Generic;
 
 namespace GestaoFilmes.Domain.Interface
@@ -8,8 +8,7 @@ namespace GestaoFilmes.Domain.Interface
     {
         void Adicionar(Realizador realizador);
         List<Realizador> ObterTodos();
-        Realizador ProcurarPorNome(string nome);
-        Realizador ObterPorId(int id);
+        Realizador ProcurarPorId(int id);
         bool Remover(int id);
     }
 }
