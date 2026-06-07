@@ -1,5 +1,7 @@
-﻿using GestaoFilmes.Domain.Entities;
+﻿using GestaoFilmes.Domain;
+using GestaoFilmes.Domain.Entities;
 using GestaoFilmes.Domain.Interface;
+using GestaoFilmes.Domain.Interfaces;
 using System.Collections.Generic;
 using System.Data.SQLite;
 
@@ -9,13 +11,11 @@ namespace GestaoFilmes.Data.Repositorios
     {
         private readonly string _connectionString = "Data Source=filmes.db;Version=3;";
 
-        // CONSTRUTOR: Garante que a tabela existe antes de qualquer operação!
         public FilmeRepositorySQLite()
         {
             using var conn = new SQLiteConnection(_connectionString);
             conn.Open();
 
-            // Cria a tabela Filme se ela não existir
             string createTableSql = @"
                 CREATE TABLE IF NOT EXISTS Filme (
                     Id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -31,8 +31,7 @@ namespace GestaoFilmes.Data.Repositorios
             cmd.ExecuteNonQuery();
         }
 
-        // Alterado de 'Adicionar' para 'Registar' (ajusta conforme a tua IFilmeRepository)
-        public void Registar(Filme filme)
+        public void Adicionar(Filme filme)
         {
             using var conn = new SQLiteConnection(_connectionString);
             conn.Open();
@@ -50,13 +49,10 @@ namespace GestaoFilmes.Data.Repositorios
             cmd.Parameters.AddWithValue("@RealizadorId", filme.RealizadorId);
 
             cmd.ExecuteNonQuery();
-
-            // Captura o ID auto-incrementado gerado pelo SQLite
             filme.Id = (int)conn.LastInsertRowId;
         }
 
-        // Alterado de 'ObterTodos' para 'Listar' (ajusta conforme a tua IFilmeRepository)
-        public List<Filme> Listar()
+        public List<Filme> ObterTodos()
         {
             var lista = new List<Filme>();
 
@@ -85,8 +81,7 @@ namespace GestaoFilmes.Data.Repositorios
             return lista;
         }
 
-        // Alterado de 'ProcurarPorTitulo' para 'ObterPorTitulo' (ajusta conforme a tua IFilmeRepository)
-        public Filme ObterPorTitulo(string titulo)
+        public Filme ProcurarPorTitulo(string titulo)
         {
             using var conn = new SQLiteConnection(_connectionString);
             conn.Open();
@@ -94,7 +89,6 @@ namespace GestaoFilmes.Data.Repositorios
             string sql = "SELECT Id, Titulo, Ano, Lingua, Classificacao, CategoriaId, RealizadorId FROM Filme WHERE LOWER(Titulo) = @Titulo";
 
             using var cmd = new SQLiteCommand(sql, conn);
-            // CORREÇÃO: Forçar o parâmetro a ir em minúsculas também
             cmd.Parameters.AddWithValue("@Titulo", titulo.Trim().ToLower());
 
             using var reader = cmd.ExecuteReader();
@@ -116,8 +110,7 @@ namespace GestaoFilmes.Data.Repositorios
             return null;
         }
 
-        // Alterado de 'Remover' para 'Eliminar' (ajusta conforme a tua IFilmeRepository)
-        public bool Eliminar(int id)
+        public bool Remover(int id)
         {
             using var conn = new SQLiteConnection(_connectionString);
             conn.Open();

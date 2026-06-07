@@ -8,68 +8,50 @@ namespace GestaoFilmes.Business.Service
 {
     public class FilmeService : IFilmeService
     {
-        private readonly IFilmeRepository _repositorio;
-        private readonly ICategoriaRepository _categoriaRepository;
-        private readonly IRealizadorRepository _realizadorRepository;
+        private readonly IFilmeRepository _filmeRepo;
+        private readonly ICategoriaRepository _categoriaRepo;
+        private readonly IRealizadorRepository _realizadorRepo;
 
-        public FilmeService(
-            IFilmeRepository repositorio,
-            ICategoriaRepository categoriaRepository,
-            IRealizadorRepository realizadorRepository)
+        public FilmeService(IFilmeRepository filmeRepo, ICategoriaRepository categoriaRepo, IRealizadorRepository realizadorRepo)
         {
-            _repositorio = repositorio;
-            _categoriaRepository = categoriaRepository;
-            _realizadorRepository = realizadorRepository;
+            _filmeRepo = filmeRepo;
+            _categoriaRepo = categoriaRepo;
+            _realizadorRepo = realizadorRepo;
         }
 
         public void RegistarFilme(Filme filme)
         {
             if (string.IsNullOrWhiteSpace(filme.Titulo))
-                throw new Exception("O título do filme não pode estar vazio!");
+                throw new Exception("O título do filme é obrigatório.");
 
-            // Validar categoria
-            var categoria = _categoriaRepository.ProcurarPorId(filme.CategoriaId);
+            // CORREÇÃO AQUI: Mudado de ProcurarPorId para ObterPorId
+            var categoria = _categoriaRepo.ObterPorId(filme.CategoriaId);
             if (categoria == null)
-                throw new Exception("A categoria indicada não existe.");
+                throw new Exception("A categoria selecionada não existe.");
 
-            // Validar realizador
-            var realizador = _realizadorRepository.ProcurarPorId(filme.RealizadorId);
+            var realizador = _realizadorRepo.ProcurarPorId(filme.RealizadorId);
             if (realizador == null)
-                throw new Exception("O realizador indicado não existe.");
+                throw new Exception("O realizador selecionado não existe.");
 
-            // Validar ano
-            if (filme.Ano < 1888 || filme.Ano > DateTime.Now.Year)
-                throw new Exception("O ano do filme é inválido!");
+            if (_filmeRepo.ProcurarPorTitulo(filme.Titulo) != null)
+                throw new Exception("Já existe um filme registado com este título.");
 
-            // Verificar duplicado
-            var filmeExistente = _repositorio.ProcurarPorTitulo(filme.Titulo.Trim().ToLower());
-            if (filmeExistente != null)
-                throw new InvalidOperationException($"Já existe um filme registado com o título '{filme.Titulo}'!");
-
-            _repositorio.Adicionar(filme);
+            _filmeRepo.Adicionar(filme);
         }
 
         public List<Filme> ListarFilmes()
         {
-            return _repositorio.ObterTodos();
+            return _filmeRepo.ObterTodos();
         }
 
         public Filme BuscarFilmePorTitulo(string titulo)
         {
-            if (string.IsNullOrWhiteSpace(titulo))
-                throw new ArgumentException("O título não pode estar vazio.");
-
-            titulo = titulo.Trim().ToLower();
-
-            return _repositorio.ProcurarPorTitulo(titulo);
+            return _filmeRepo.ProcurarPorTitulo(titulo);
         }
 
         public bool EliminarFilme(int id)
         {
-            if (id <= 0)
-                throw new ArgumentException("O ID do filme a remover deve ser maior que zero!");
-
-            return _repositorio.Remover(id);
+            return _filmeRepo.Remover(id);
         }
     }
 }

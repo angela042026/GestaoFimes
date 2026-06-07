@@ -11,27 +11,22 @@ namespace GestaoFilmes.ConsoleUI
 {
     class Program
     {
-        // ---------------------- REPOSITÓRIOS EM MEMÓRIA ----------------------
-
-        static IFilmeRepository _filmeRepository = new FilmeRepositorySQLite();
-        static ICategoriaRepository _categoriaRepository = new CategoriaRepositorySQLite();
-        static IRealizadorRepository _realizadorRepository = new RealizadorRepositorySQLite();
-
-
+        // ---------------------- REPOSITÓRIOS SQLITE ----------------------
+        static readonly IFilmeRepository _filmeRepository = new FilmeRepositorySQLite();
+        static readonly ICategoriaRepository _categoriaRepository = new CategoriaRepositorySQLite();
+        static readonly IRealizadorRepository _realizadorRepository = new RealizadorRepositorySQLite();
 
         // ---------------------- SERVIÇOS ----------------------
-
         private static readonly ICategoriaService _categoriaService =
             new CategoriaService(_categoriaRepository);
 
-        static IFilmeService _filmeService =
+        static readonly IFilmeService _filmeService =
             new FilmeService(_filmeRepository, _categoriaRepository, _realizadorRepository);
 
         private static readonly IRealizadorService _realizadorService =
             new RealizadorService(_realizadorRepository);
 
         // ---------------------- FUNÇÕES AUXILIARES ----------------------
-
         private static string ConverterParaEstrelas(int nota)
         {
             return new string('★', nota) + new string('☆', 5 - nota);
@@ -47,13 +42,14 @@ namespace GestaoFilmes.ConsoleUI
                 Console.Clear();
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("╔══════════════════════════════════════╗");
-                Console.WriteLine("║            GESTÃO DE FILMES          ║");
+                Console.WriteLine("║           GESTÃO DE FILMES           ║");
                 Console.WriteLine("╚══════════════════════════════════════╝");
                 Console.ResetColor();
 
-                Console.WriteLine("1. 🎬 Filmes");
-                Console.WriteLine("2. 🏷️ Categorias");
-                Console.WriteLine("3. 🎥 Realizadores");
+                // MELHORIA: Ordem lógica do fluxo de negócio
+                Console.WriteLine("1. 🏷️ Categorias");
+                Console.WriteLine("2. 🎥 Realizadores");
+                Console.WriteLine("3. 🎬 Filmes");
                 Console.WriteLine("0. ❌ Sair");
                 Console.Write("\nEscolha uma opção: ");
 
@@ -61,9 +57,9 @@ namespace GestaoFilmes.ConsoleUI
 
                 switch (opcao)
                 {
-                    case "1": MenuFilmes(); break;
-                    case "2": MenuCategorias(); break;
-                    case "3": MenuRealizadores(); break;
+                    case "1": MenuCategorias(); break;
+                    case "2": MenuRealizadores(); break;
+                    case "3": MenuFilmes(); break;
                     case "0": continuar = false; break;
                     default: MostrarErro("Opção inválida!"); break;
                 }
@@ -71,7 +67,6 @@ namespace GestaoFilmes.ConsoleUI
         }
 
         // ---------------------- ESTILO VISUAL ----------------------
-
         private static void Titulo(string texto)
         {
             Console.Clear();
@@ -107,7 +102,6 @@ namespace GestaoFilmes.ConsoleUI
         }
 
         // ---------------------- FILMES ----------------------
-
         private static void MenuFilmes()
         {
             bool voltar = false;
@@ -153,11 +147,51 @@ namespace GestaoFilmes.ConsoleUI
             Console.Write("Língua: ");
             novoFilme.Lingua = Console.ReadLine() ?? string.Empty;
 
-            Console.Write("ID da categoria: ");
-            novoFilme.CategoriaId = int.Parse(Console.ReadLine());
+            Console.WriteLine("\n---------------------------------");
+            // MELHORIA: Listar categorias automáticas para ajudar o utilizador
+            Console.WriteLine("🏷️ Categorias Disponíveis:");
+            var categorias = _categoriaService.ListarCategorias();
+            if (categorias.Count == 0)
+            {
+                MostrarErro("Não pode adicionar filmes sem criar categorias primeiro!");
+                return;
+            }
+            foreach (var c in categorias)
+            {
+                Console.WriteLine($"  [{c.Id}] - {c.Nome}");
+            }
+            Console.WriteLine("---------------------------------");
 
-            Console.Write("ID do realizador: ");
-            novoFilme.RealizadorId = int.Parse(Console.ReadLine());
+            Console.Write("Escolha o ID da categoria: ");
+            if (!int.TryParse(Console.ReadLine(), out int catId) || _categoriaRepository.ObterPorId(catId) == null)
+            {
+                MostrarErro("ID de categoria inválido ou inexistente na base de dados!");
+                return;
+            }
+            novoFilme.CategoriaId = catId;
+
+            Console.WriteLine("\n---------------------------------");
+            // MELHORIA: Listar realizadores automáticos para ajudar o utilizador
+            Console.WriteLine("🎥 Realizadores Disponíveis:");
+            var realizadores = _realizadorService.ListarRealizadores();
+            if (realizadores.Count == 0)
+            {
+                MostrarErro("Não pode adicionar filmes sem criar realizadores primeiro!");
+                return;
+            }
+            foreach (var r in realizadores)
+            {
+                Console.WriteLine($"  [{r.Id}] - {r.Nome} ({r.Pais})");
+            }
+            Console.WriteLine("---------------------------------");
+
+            Console.Write("Escolha o ID do realizador: ");
+            if (!int.TryParse(Console.ReadLine(), out int realId) || _realizadorRepository.ProcurarPorId(realId) == null)
+            {
+                MostrarErro("ID de realizador inválido ou inexistente na base de dados!");
+                return;
+            }
+            novoFilme.RealizadorId = realId;
 
             Console.WriteLine("\nClassificação:");
             Console.WriteLine("0-Péssimo | 1-Mau | 2-Médio | 3-Bom | 4-Muito Bom | 5-Excelente");
@@ -232,7 +266,6 @@ namespace GestaoFilmes.ConsoleUI
                     Console.WriteLine($"-> Título: {filme.Titulo}");
                     Console.WriteLine($"-> Ano: {filme.Ano}");
                     Console.WriteLine($"-> Língua: {filme.Lingua}");
-                    Console.WriteLine($"-> Nota: {(int)filme.Classificacao}");
                     Console.WriteLine($"Classificação: {(int)filme.Classificacao} {ConverterParaEstrelas((int)filme.Classificacao)}");
                 }
                 else
@@ -278,7 +311,6 @@ namespace GestaoFilmes.ConsoleUI
         }
 
         // ---------------------- CATEGORIAS ----------------------
-
         private static void MenuCategorias()
         {
             bool voltar = false;
@@ -395,7 +427,6 @@ namespace GestaoFilmes.ConsoleUI
         }
 
         // ---------------------- REALIZADORES ----------------------
-
         private static void MenuRealizadores()
         {
             bool voltar = false;

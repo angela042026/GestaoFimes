@@ -1,5 +1,6 @@
 ﻿using GestaoFilmes.Domain.Entities;
 using GestaoFilmes.Domain.Interface;
+using GestaoFilmes.Domain.Interfaces;
 using System.Collections.Generic;
 using System.Data.SQLite;
 
@@ -9,7 +10,6 @@ namespace GestaoFilmes.Data.Repositorios
     {
         private readonly string _connectionString = "Data Source=filmes.db;Version=3;";
 
-        // CONSTRUTOR: Garante que a tabela Realizador é criada na base de dados
         public RealizadorRepositorySQLite()
         {
             using var conn = new SQLiteConnection(_connectionString);
@@ -26,8 +26,7 @@ namespace GestaoFilmes.Data.Repositorios
             cmd.ExecuteNonQuery();
         }
 
-        // Alterado de 'Adicionar' para 'Registar' (ajusta conforme a tua IRealizadorRepository)
-        public void Registar(Realizador realizador)
+        public void Adicionar(Realizador realizador)
         {
             using var conn = new SQLiteConnection(_connectionString);
             conn.Open();
@@ -36,14 +35,13 @@ namespace GestaoFilmes.Data.Repositorios
 
             using var cmd = new SQLiteCommand(sql, conn);
             cmd.Parameters.AddWithValue("@Nome", realizador.Nome);
-            cmd.Parameters.AddWithValue("@Pais", realizador.Pais);
+            cmd.Parameters.AddWithValue("@Pais", realizador.Pais ?? string.Empty);
 
             cmd.ExecuteNonQuery();
             realizador.Id = (int)conn.LastInsertRowId;
         }
 
-        // Alterado de 'ObterTodos' para 'Listar' (ajusta conforme a tua IRealizadorRepository)
-        public List<Realizador> Listar()
+        public List<Realizador> ObterTodos()
         {
             var lista = new List<Realizador>();
 
@@ -60,15 +58,14 @@ namespace GestaoFilmes.Data.Repositorios
                 lista.Add(new Realizador
                 {
                     Id = reader.GetInt32(0),
-                    Nome = reader.GetString(1),
-                    Pais = reader.IsDBNull(2) ? string.Empty : reader.GetString(2) // Evita erros se o País estiver nulo
+                    Nome = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
+                    Pais = reader.IsDBNull(2) ? string.Empty : reader.GetString(2)
                 });
             }
 
             return lista;
         }
 
-        // Nome mantido ou ajustado para 'ProcurarPorId' / 'ObterPorId' conforme a tua interface
         public Realizador ProcurarPorId(int id)
         {
             using var conn = new SQLiteConnection(_connectionString);
@@ -86,7 +83,7 @@ namespace GestaoFilmes.Data.Repositorios
                 return new Realizador
                 {
                     Id = reader.GetInt32(0),
-                    Nome = reader.GetString(1),
+                    Nome = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
                     Pais = reader.IsDBNull(2) ? string.Empty : reader.GetString(2)
                 };
             }
@@ -94,8 +91,7 @@ namespace GestaoFilmes.Data.Repositorios
             return null;
         }
 
-        // Alterado de 'Remover' para 'Eliminar' (ajusta conforme a tua IRealizadorRepository)
-        public bool Eliminar(int id)
+        public bool Remover(int id)
         {
             using var conn = new SQLiteConnection(_connectionString);
             conn.Open();

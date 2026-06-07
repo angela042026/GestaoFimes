@@ -1,5 +1,5 @@
 ﻿using GestaoFilmes.Domain.Entities;
-using GestaoFilmes.Domain.Interface;
+using GestaoFilmes.Domain.Interfaces;
 using System.Collections.Generic;
 using System.Data.SQLite;
 
@@ -9,7 +9,6 @@ namespace GestaoFilmes.Data.Repositorios
     {
         private readonly string _connectionString = "Data Source=filmes.db;Version=3;";
 
-        // CONSTRUTOR: Cria a tabela Categoria se ela não existir
         public CategoriaRepositorySQLite()
         {
             using var conn = new SQLiteConnection(_connectionString);
@@ -25,8 +24,7 @@ namespace GestaoFilmes.Data.Repositorios
             cmd.ExecuteNonQuery();
         }
 
-        // Alterado para 'Registar' para coincidir com a assinatura esperada pelo CategoriaService
-        public void Registar(Categoria categoria)
+        public void Adicionar(Categoria categoria)
         {
             using var conn = new SQLiteConnection(_connectionString);
             conn.Open();
@@ -40,8 +38,7 @@ namespace GestaoFilmes.Data.Repositorios
             categoria.Id = (int)conn.LastInsertRowId;
         }
 
-        // Alterado para 'Listar' para coincidir com o CategoriaService
-        public List<Categoria> Listar()
+        public List<Categoria> ObterTodas()
         {
             var lista = new List<Categoria>();
 
@@ -55,7 +52,7 @@ namespace GestaoFilmes.Data.Repositorios
 
             while (reader.Read())
             {
-                lista.Add(new List<Categoria>()[0] = new Categoria // Truque sintático simples e limpo
+                lista.Add(new Categoria
                 {
                     Id = reader.GetInt32(0),
                     Nome = reader.GetString(1)
@@ -65,8 +62,7 @@ namespace GestaoFilmes.Data.Repositorios
             return lista;
         }
 
-        // Caso a tua ICategoriaRepository precise de procura por ID (método mantido)
-        public Categoria ProcurarPorId(int id)
+        public Categoria ObterPorId(int id)
         {
             using var conn = new SQLiteConnection(_connectionString);
             conn.Open();
@@ -90,8 +86,7 @@ namespace GestaoFilmes.Data.Repositorios
             return null;
         }
 
-        // Alterado para 'ProcurarCategoriaPorNome' para ligar diretamente à UI através do Service
-        public Categoria ProcurarCategoriaPorNome(string nome)
+        public Categoria ObterPorNome(string nome)
         {
             using var conn = new SQLiteConnection(_connectionString);
             conn.Open();
@@ -115,8 +110,7 @@ namespace GestaoFilmes.Data.Repositorios
             return null;
         }
 
-        // Alterado para 'Eliminar' para coincidir com o CategoriaService
-        public bool Eliminar(int id)
+        public bool Remover(int id)
         {
             using var conn = new SQLiteConnection(_connectionString);
             conn.Open();
